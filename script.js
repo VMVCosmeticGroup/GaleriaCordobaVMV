@@ -87,41 +87,20 @@ function openModal(imageId, title) {
             modalImage.style.transition = 'filter 0.5s';
             modalImage.style.filter = 'none';
         };
-        // Descargar imagen
+        // Actualizar enlaces de acciones
         if (downloadBtn) {
-            downloadBtn.onclick = () => {
-                const a = document.createElement('a');
-                a.href = highResUrl;
-                a.download = title.replace(/\s+/g, '_') + '.jpg';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            };
+            downloadBtn.href = highResUrl;
+            downloadBtn.setAttribute('download', title.replace(/\s+/g, '_') + '.jpg');
         }
-        // Compartir en WhatsApp
         if (whatsappBtn) {
-            whatsappBtn.onclick = () => {
-                const url = encodeURIComponent(highResUrl);
-                const text = encodeURIComponent('¡Mira esta foto! ' + title + ' ' + highResUrl);
-                window.open(`https://wa.me/?text=${text}`,'_blank');
-            };
+            const text = encodeURIComponent('¡Mira esta foto de mi viaje a Cádiz con VMV! ' + highResUrl);
+            whatsappBtn.href = `https://wa.me/?text=${text}`;
         }
-        // Compartir en Facebook
         if (facebookBtn) {
-            facebookBtn.onclick = () => {
-                const url = encodeURIComponent(highResUrl);
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`,'_blank');
-            };
+            facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(highResUrl)}`;
         }
-        // Copiar enlace para Instagram
         if (instagramBtn) {
-            instagramBtn.onclick = () => {
-                navigator.clipboard.writeText(highResUrl);
-                instagramBtn.textContent = '¡Enlace copiado!';
-                setTimeout(() => {
-                    instagramBtn.textContent = 'Copiar enlace';
-                }, 1500);
-            };
+            instagramBtn.href = 'https://www.instagram.com/'; // Instagram no permite compartir directo por URL
         }
     }
 }
