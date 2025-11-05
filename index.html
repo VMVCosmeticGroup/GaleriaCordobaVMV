@@ -7,30 +7,49 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Galería como componente -->
-    <article class="gallery_wrapper" id="gallery_wrapper"></article>
+    <!-- Contenedor con scroll personalizado -->
+    <div class="gallery-container" id="gallery-container">
+        <!-- Galería como componente -->
+        <article class="gallery_wrapper" id="gallery_wrapper"></article>
+    </div>
+    
+    <!-- Dots indicadores de scroll -->
+    <div class="scroll-dots" id="scroll-dots"></div>
     
     <!-- Modal para ver imágenes en grande -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
+            
+            <!-- Flecha izquierda -->
+            <button id="modal-prev" class="modal-arrow modal-arrow-prev" title="Anterior">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            
             <img id="modal-image" src="" alt="Imagen ampliada">
-            <div id="modal-actions" style="display:flex;gap:18px;justify-content:center;align-items:center;margin-top:18px;">
+            
+            <!-- Flecha derecha -->
+            <button id="modal-next" class="modal-arrow modal-arrow-next" title="Siguiente">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            
+            <!-- Acciones (Descargar y redes sociales) -->
+            <div id="modal-actions" class="modal-actions">
                 <!-- Descargar -->
-                <a id="download-btn" title="Descargar" style="display:inline-block;" target="_blank">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <a id="download-btn" title="Descargar" class="modal-action-btn" target="_blank">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
                 <!-- WhatsApp -->
-                <a id="whatsapp-btn" title="Compartir en WhatsApp" style="display:inline-block;" target="_blank">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5c-.5-.5-1.5-.5-2 0l-1 1c-.5.5-.5 1.5 0 2l1 1c.5.5 1.5.5 2 0l1-1c.5-.5.5-1.5 0-2l-1-1z"/></svg>
+                <a id="whatsapp-btn" title="Compartir en WhatsApp" class="modal-action-btn" target="_blank">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5c-.5-.5-1.5-.5-2 0l-1 1c-.5.5-.5 1.5 0 2l1 1c.5.5 1.5.5 2 0l1-1c.5-.5.5-1.5 0-2l-1-1z"/></svg>
                 </a>
                 <!-- Facebook -->
-                <a id="facebook-btn" title="Compartir en Facebook" style="display:inline-block;" target="_blank">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1877F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14 8h-2a2 2 0 0 0-2 2v2h-2v2h2v4h2v-4h2l1-2h-3v-2a1 1 0 0 1 1-1h2z"/></svg>
+                <a id="facebook-btn" title="Compartir en Facebook" class="modal-action-btn" target="_blank">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14 8h-2a2 2 0 0 0-2 2v2h-2v2h2v4h2v-4h2l1-2h-3v-2a1 1 0 0 1 1-1h2z"/></svg>
                 </a>
                 <!-- Instagram -->
-                <a id="instagram-btn" title="Compartir en Instagram" style="display:inline-block;" target="_blank">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E1306C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1"/></svg>
+                <a id="instagram-btn" title="Compartir en Instagram" class="modal-action-btn" target="_blank">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1"/></svg>
                 </a>
             </div>
         </div>

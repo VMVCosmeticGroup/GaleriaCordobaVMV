@@ -1,6 +1,10 @@
 // Configuración de Cloudinary
 const CLOUDINARY_CLOUD_NAME = 'galerycordoba';
 
+// Variables globales para modal navigation
+let allImages = [];
+let currentImageIndex = 0;
+
 // Función para construir URL de Cloudinary
 function getCloudinaryUrlDirect(imageId, width = 400, height = 400) {
     return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/w_${width},h_${height},c_fill,q_auto,f_auto/${imageId}`;
@@ -11,6 +15,7 @@ async function loadGallery() {
     try {
         const response = await fetch('./data.json');
         const images = await response.json();
+        allImages = images; // Guardar lista global
 
         const galleryWrapper = document.getElementById('gallery_wrapper');
         galleryWrapper.innerHTML = '';
@@ -42,7 +47,6 @@ async function loadGallery() {
         // Crear elementos de galería
         images.forEach((image, index) => {
             const imageUrl = getCloudinaryUrlDirect(image.id, 400, 400);
-            const imageLargeUrl = getCloudinaryUrlDirect(image.id, 1200, 1200);
 
             const img = document.createElement('img');
             img.src = imageUrl;
@@ -51,10 +55,14 @@ async function loadGallery() {
             img.title = image.titulo;
             img.style.cursor = 'pointer';
             img.addEventListener('click', () => {
+                currentImageIndex = index; // Guardar índice actual
                 openModal(image.id, image.titulo);
             });
             galleryWrapper.appendChild(img);
         });
+
+        // Inicializar scroll dots
+        initScrollDots(images.length);
     } catch (error) {
         console.error('Error al cargar la galería:', error);
         alert('Error al cargar la galería. Verifica tu archivo data.json y la configuración de Cloudinary');
@@ -69,6 +77,7 @@ function openModal(imageId, title) {
     const whatsappBtn = document.getElementById('whatsapp-btn');
     const facebookBtn = document.getElementById('facebook-btn');
     const instagramBtn = document.getElementById('instagram-btn');
+    
     if (modal && modalImage) {
         // Mostrar primero la imagen en baja calidad
         const lowResUrl = getCloudinaryUrlDirect(imageId, 200, 200);
@@ -77,16 +86,17 @@ function openModal(imageId, title) {
         modalImage.alt = title;
         modalImage.style.filter = 'blur(10px) grayscale(0.5)';
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Evitar scroll del body
+        document.body.style.overflow = 'hidden';
+        
         // Precargar la imagen en alta calidad
         const imgHigh = new window.Image();
         imgHigh.src = highResUrl;
         imgHigh.onload = () => {
-            // Transición suave
             modalImage.src = highResUrl;
             modalImage.style.transition = 'filter 0.5s';
             modalImage.style.filter = 'none';
         };
+        
         // Actualizar enlaces de acciones
         if (downloadBtn) {
             downloadBtn.href = highResUrl;
@@ -100,8 +110,24 @@ function openModal(imageId, title) {
             facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(highResUrl)}`;
         }
         if (instagramBtn) {
-            instagramBtn.href = 'https://www.instagram.com/'; // Instagram no permite compartir directo por URL
+            instagramBtn.href = 'https://www.instagram.com/';
         }
+    }
+}
+
+function showNextImage() {
+    if (allImages.length > 0) {
+        currentImageIndex = (currentImageIndex + 1) % allImages.length;
+        const image = allImages[currentImageIndex];
+        openModal(image.id, image.titulo);
+    }
+}
+
+function showPrevImage() {
+    if (allImages.length > 0) {
+        currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+        const image = allImages[currentImageIndex];
+        openModal(image.id, image.titulo);
     }
 }
 
@@ -113,12 +139,63 @@ function closeModal() {
     }
 }
 
+// Scroll Dots Handler
+let scrollDotsCount = 0;
+
+function initScrollDots(totalImages) {
+    // Calcular número de filas (16 columnas con 2 span = 8 imágenes por fila)
+    const imagesPerRow = 8;
+    const rows = Math.ceil(totalImages / imagesPerRow);
+    // Mostrar solo un tercio de los puntos
+    const visibleDots = Math.max(1, Math.ceil(rows / 3));
+    scrollDotsCount = rows;
+
+    const scrollDotsContainer = document.getElementById('scroll-dots');
+    scrollDotsContainer.innerHTML = '';
+
+    for (let i = 0; i < visibleDots; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'scroll-dot';
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            const container = document.getElementById('gallery-container');
+            const scrollHeight = (container.scrollHeight - container.clientHeight) / (visibleDots - 1 || 1);
+            container.scrollTo({
+                top: scrollHeight * i,
+                behavior: 'smooth'
+            });
+        });
+        scrollDotsContainer.appendChild(dot);
+    }
+
+    // Actualizar dots al hacer scroll
+    const container = document.getElementById('gallery-container');
+    container.addEventListener('scroll', () => {
+        const scrollPercentage = container.scrollTop / (container.scrollHeight - container.clientHeight);
+        const activeDot = Math.round(scrollPercentage * (visibleDots - 1 || 0));
+        
+        document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
+            dot.classList.toggle('active', index === activeDot);
+        });
+    });
+}
+
 // Event listeners del modal - Se ejecutan cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', () => {
     // Cerrar modal al hacer click en la X
     const closeBtn = document.querySelector('.modal-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', closeModal);
+    }
+
+    // Botones de navegación
+    const prevBtn = document.getElementById('modal-prev');
+    const nextBtn = document.getElementById('modal-next');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', showPrevImage);
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', showNextImage);
     }
 
     // Cerrar modal al hacer click en el área de fondo
@@ -135,6 +212,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeModal();
+        }
+        // Navegar con teclas de flecha
+        if (e.key === 'ArrowLeft') {
+            showPrevImage();
+        }
+        if (e.key === 'ArrowRight') {
+            showNextImage();
         }
     });
 
