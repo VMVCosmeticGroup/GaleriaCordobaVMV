@@ -11,8 +11,8 @@ body {
     place-items: center;
     height: 100svh;
     height: 100vh;
-    background: linear-gradient(rgba(0, 0, 0, 0.671), rgba(0,0,0,0.4)), url("https://images.unsplash.com/photo-1465146633011-14f8e0781093?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3450&q=80") repeat scroll 0 0;
-    background-size: 110%;
+    background: linear-gradient(rgba(0, 0, 0, 0.363)), url("https://images.unsplash.com/photo-1465146633011-14f8e0781093?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3450&q=80") repeat scroll 0 0;
+    background-size: 120%;
     animation: scroll 400s linear infinite reverse;
     overflow: hidden;
     

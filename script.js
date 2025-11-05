@@ -93,8 +93,8 @@ async function loadGallery() {
         });
         await Promise.all(preloadLargePromises);
 
-        // Esperar 1.5 segundos adicionales para asegurar que todo esté en caché
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Esperar 2.5 segundos adicionales para asegurar que todo esté en caché
+        await new Promise(resolve => setTimeout(resolve, 2800));
 
         // Detener rotación de mensajes
         clearInterval(messageInterval);
@@ -281,15 +281,37 @@ function initScrollDots(totalImages) {
         scrollDotsContainer.appendChild(dot);
     }
 
-    // Actualizar dots al hacer scroll
+    // Scroll snap: salta al siguiente punto según dirección
     const container = document.getElementById('gallery-container');
-    container.addEventListener('scroll', () => {
-        const scrollPercentage = container.scrollTop / (container.scrollHeight - container.clientHeight);
-        const activeDot = Math.round(scrollPercentage * (visibleDots - 1 || 0));
-        
-        document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
-            dot.classList.toggle('active', index === activeDot);
+    let isSnapping = false;
+    const snapPositions = [];
+    for (let i = 0; i < visibleDots; i++) {
+        snapPositions.push((container.scrollHeight - container.clientHeight) * (i / (visibleDots - 1 || 1)));
+    }
+
+    let currentIndex = 0;
+    // Margen de detección bajo
+    const DETECTION_MARGIN = 0.5;
+
+    container.addEventListener('wheel', (e) => {
+        if (isSnapping) return;
+        isSnapping = true;
+        if (e.deltaY > DETECTION_MARGIN) {
+            // Scroll hacia abajo
+            currentIndex = Math.min(currentIndex + 1, snapPositions.length - 1);
+        } else if (e.deltaY < -DETECTION_MARGIN) {
+            // Scroll hacia arriba
+            currentIndex = Math.max(currentIndex - 1, 0);
+        }
+        container.scrollTo({
+            top: snapPositions[currentIndex],
+            behavior: 'smooth'
         });
+        // Actualizar dots activos
+        document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+        setTimeout(() => { isSnapping = false; }, 350);
     });
 }
 
