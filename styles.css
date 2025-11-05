@@ -2,6 +2,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+    
 }
 
 body {
@@ -9,8 +11,24 @@ body {
     place-items: center;
     height: 100svh;
     height: 100vh;
-    background: #000814;
+    background: linear-gradient(rgba(0, 0, 0, 0.671), rgba(0,0,0,0.4)), url("https://images.unsplash.com/photo-1465146633011-14f8e0781093?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3450&q=80") repeat scroll 0 0;
+    background-size: 110%;
+    animation: scroll 400s linear infinite reverse;
     overflow: hidden;
+    
+}
+
+
+@keyframes scroll {
+    100% {
+        background-position: 0px -400%;
+    }
+}
+
+@media (prefers-reduced-motion) {
+    body {
+        animation: scroll 8000s linear infinite;
+    }
 }
 
 /* Contenedor con scroll personalizado */
@@ -51,16 +69,38 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
+    animation: breathe 3s ease-in-out infinite;
 }
 
 .scroll-dot:hover {
     background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    animation: none;
 }
 
 .scroll-dot.active {
     background: #fff;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
     transform: scale(1.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
 }
 
 @media (max-width: 768px) {
@@ -80,6 +120,66 @@ body {
     }
 }
 
+/* Gallery Title */
+.gallery-title {
+	text-align: center;
+	margin: 60px auto 40px;
+	padding: 0 20px;
+	max-width: 95vw;
+	animation: fadeInDown 0.8s ease-out;
+}
+
+.gallery-title h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+    text-shadow:
+        0 4px 24px rgba(0,0,0,0.55),
+        0 1.5px 6px rgba(0,0,0,0.32),
+        0 0px 1px rgba(0,0,0,0.8);
+    font-family: 'Playfair Display', serif;
+    text-transform: uppercase;
+}
+
+.gallery-title p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 300;
+    letter-spacing: 1px;
+    font-family: 'Outfit', sans-serif;
+    text-transform: uppercase;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.22);
+}
+
+@keyframes fadeInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (max-width: 768px) {
+	.gallery-title h1 {
+		font-size: 2rem;
+	}
+
+  
+
+	.gallery-title p {
+		font-size: 0.95rem;
+	}
+
+	.gallery-title {
+		margin: 40px auto 30px;
+	}
+}
+
 /* Gallery Component */
 .gallery_wrapper {
 	--img-size: calc(100px - 0.5rem / 2); 
@@ -88,22 +188,23 @@ body {
     /* 16 columnas (8 imágenes * span 2) para el ancho */
 	grid-template-columns: repeat(16, var(--img-size));
 	grid-auto-rows: var(--img-size);
-	margin: 0 auto;
+	margin: 0 auto 80px;
 	width: fit-content;
 	max-width: 95vw;
 } 
 
 .gallery_wrapper img {
-	max-width: 100%;
-	aspect-ratio: 1;
-	object-fit: cover;
-	grid-column: span 2;
-	border-radius: 0.5rem;
-	cursor: pointer;
-	clip-path: path(
-		"M 80 20 C 100 0 100 0 120 20 C 140 40 160 60 180 80 C 200 100 200 100 180 120 C 160 140 140 160 120 180 C 100 200 100 200 80 180 C 60 160 40 140 20 120 C 0 100 0 100 20 80 Z"
-	);
-	transition: filter 500ms, clip-path 500ms;
+    max-width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    grid-column: span 2;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    clip-path: path(
+        "M 80 20 C 100 0 100 0 120 20 C 140 40 160 60 180 80 C 200 100 200 100 180 120 C 160 140 140 160 120 180 C 100 200 100 200 80 180 C 60 160 40 140 20 120 C 0 100 0 100 20 80 Z"
+    );
+    transition: filter 500ms, clip-path 500ms, box-shadow 400ms;
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.22), 0 1.5px 6px 0 rgba(0,0,0,0.18);
 }
 
 .gallery_wrapper img:nth-of-type(15n + 9) {
@@ -122,11 +223,11 @@ body {
 }
 
 .gallery_wrapper:hover > img {
-	filter: brightness(0.5) saturate(0.5);
+	filter: brightness(0.8) saturate(0.4);
 }
 
 .gallery_wrapper > img:hover {
-	filter: brightness(1) saturate(1.5);
+	filter: brightness(1) saturate(1.2);
 }
 
 @keyframes zIndexFix {
@@ -149,7 +250,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.98);
+    background-color: rgba(0, 0, 0, 0.89);
 }
 
 .modal.active {
@@ -163,10 +264,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 90%;
+    width: 100%;
     max-width: 1000px;
-    max-height: 85vh;
+    max-height: 105vh;
     gap: 20px;
+    flex-direction: column;
 }
 
 @keyframes zoomIn {
@@ -180,13 +282,76 @@ body {
     }
 }
 
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 #modal-image {
     width: 100%;
     height: auto;
     max-height: 85vh;
     object-fit: contain;
     display: block;
-    animation: zoomIn 0.3s ease;
+}
+
+#modal-image.transitioning-zoom-in {
+    animation: zoomIn 0.4s ease forwards;
+}
+
+#modal-image.transitioning-out-right {
+    animation: slideOutRight 0.4s ease forwards;
+}
+
+#modal-image.transitioning-in-left {
+    animation: slideInLeft 0.4s ease forwards;
+}
+
+#modal-image.transitioning-out-left {
+    animation: slideOutLeft 0.4s ease forwards;
+}
+
+#modal-image.transitioning-in-right {
+    animation: slideInRight 0.4s ease forwards;
 }
 
 /* Modal Navigation Arrows */
@@ -207,12 +372,28 @@ body {
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     z-index: 10;
+    animation: float 3s ease-in-out infinite;
 }
 
 .modal-arrow:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+    animation: none;
+}
+
+.modal-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+@keyframes float {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
 }
 
 .modal-arrow-prev {
@@ -226,41 +407,104 @@ body {
 /* Modal Actions Bar */
 .modal-actions {
     position: absolute;
-    bottom: -60px;
+    bottom: -70px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 12px;
+    gap: 2px;
     background: rgba(0, 0, 0, 0.6);
-    padding: 12px 20px;
+    padding: 2px 8px;
     border-radius: 50px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Modal Actions Floating - Botones individuales flotantes */
+.modal-actions-floating {
+    position: relative;
+    display: flex;
+    gap: 6px;
+    z-index: 1002;
+    justify-content: center;
+    margin-top: 5px;
 }
 
 .modal-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    animation: breatheButton 3s ease-in-out infinite;
 }
 
 .modal-action-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 25px rgba(255, 255, 255, 0.3);
+    transform: translateY(-5px) scale(1.1);
+    animation: none;
+}
+
+.modal-action-btn:active {
+    transform: translateY(-2px) scale(1.05);
 }
 
 .modal-action-btn svg {
     color: inherit;
+}
+
+/* Colores específicos para redes sociales */
+.whatsapp-btn {
+    background: rgba(37, 211, 102, 0.2);
+    border-color: rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-btn:hover {
+    background: rgba(37, 211, 102, 0.35);
+    border-color: rgba(37, 211, 102, 0.6);
+    box-shadow: 0 5px 25px rgba(37, 211, 102, 0.4);
+    color: #25D366;
+}
+
+.facebook-btn {
+    background: rgba(24, 119, 242, 0.2);
+    border-color: rgba(24, 119, 242, 0.4);
+}
+
+.facebook-btn:hover {
+    background: rgba(24, 119, 242, 0.35);
+    border-color: rgba(24, 119, 242, 0.6);
+    box-shadow: 0 5px 25px rgba(24, 119, 242, 0.4);
+    color: #1877F2;
+}
+
+.instagram-btn {
+    background: linear-gradient(135deg, rgba(225, 48, 108, 0.2), rgba(193, 53, 132, 0.2), rgba(131, 58, 180, 0.2));
+    border-color: rgba(225, 48, 108, 0.4);
+}
+
+.instagram-btn:hover {
+    background: linear-gradient(135deg, rgba(225, 48, 108, 0.35), rgba(193, 53, 132, 0.35), rgba(131, 58, 180, 0.35));
+    border-color: rgba(225, 48, 108, 0.6);
+    box-shadow: 0 5px 25px rgba(225, 48, 108, 0.4);
+    color: #E1306C;
+}
+
+@keyframes breatheButton {
+    0%, 100% {
+        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
 }
 
 /* Close Button */
@@ -319,5 +563,15 @@ body {
 
     .modal-actions {
         bottom: -50px;
+    }
+
+    .modal-actions-floating {
+        bottom: 80px;
+        gap: 12px;
+    }
+
+    .modal-action-btn {
+        width: 45px;
+        height: 45px;
     }
 }

@@ -4,6 +4,7 @@ const CLOUDINARY_CLOUD_NAME = 'galerycordoba';
 // Variables globales para modal navigation
 let allImages = [];
 let currentImageIndex = 0;
+let lastDirection = 'right'; // 'right' o 'left'
 
 // Función para construir URL de Cloudinary
 function getCloudinaryUrlDirect(imageId, width = 400, height = 400) {
@@ -56,7 +57,7 @@ async function loadGallery() {
             img.style.cursor = 'pointer';
             img.addEventListener('click', () => {
                 currentImageIndex = index; // Guardar índice actual
-                openModal(image.id, image.titulo);
+                openModal(image.id, image.titulo, true); // skipTransition = true en primera apertura
             });
             galleryWrapper.appendChild(img);
         });
@@ -70,7 +71,7 @@ async function loadGallery() {
 }
 
 // Funciones del Modal
-function openModal(imageId, title) {
+function openModal(imageId, title, skipTransition = false) {
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
     const downloadBtn = document.getElementById('download-btn');
@@ -79,44 +80,88 @@ function openModal(imageId, title) {
     const instagramBtn = document.getElementById('instagram-btn');
     
     if (modal && modalImage) {
-        // Mostrar primero la imagen en baja calidad
-        const lowResUrl = getCloudinaryUrlDirect(imageId, 200, 200);
-        const highResUrl = getCloudinaryUrlDirect(imageId, 1200, 1200);
-        modalImage.src = lowResUrl;
-        modalImage.alt = title;
-        modalImage.style.filter = 'blur(10px) grayscale(0.5)';
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        // Añadir transición si no se está abriendo por primera vez
+        if (!skipTransition && modal.classList.contains('active')) {
+            // Limpiar todas las clases de animación primero
+            modalImage.classList.remove('transitioning-zoom-in', 'transitioning-out-right', 'transitioning-out-left', 'transitioning-in-left', 'transitioning-in-right');
+            
+            // Forzar reflow para que CSS reconozca el cambio
+            void modalImage.offsetWidth;
+            
+            // Aplicar animación de salida basada en la dirección
+            if (lastDirection === 'right') {
+                modalImage.classList.add('transitioning-out-right');
+            } else {
+                modalImage.classList.add('transitioning-out-left');
+            }
+            
+            setTimeout(() => {
+                loadImageContent();
+            }, 200);
+        } else {
+            loadImageContent();
+        }
         
-        // Precargar la imagen en alta calidad
-        const imgHigh = new window.Image();
-        imgHigh.src = highResUrl;
-        imgHigh.onload = () => {
-            modalImage.src = highResUrl;
-            modalImage.style.transition = 'filter 0.5s';
-            modalImage.style.filter = 'none';
-        };
-        
-        // Actualizar enlaces de acciones
-        if (downloadBtn) {
-            downloadBtn.href = highResUrl;
-            downloadBtn.setAttribute('download', title.replace(/\s+/g, '_') + '.jpg');
-        }
-        if (whatsappBtn) {
-            const text = encodeURIComponent('¡Mira esta foto de mi viaje a Cádiz con VMV! ' + highResUrl);
-            whatsappBtn.href = `https://wa.me/?text=${text}`;
-        }
-        if (facebookBtn) {
-            facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(highResUrl)}`;
-        }
-        if (instagramBtn) {
-            instagramBtn.href = 'https://www.instagram.com/';
+        function loadImageContent() {
+            // Limpiar todas las clases de animación
+            modalImage.classList.remove('transitioning-zoom-in', 'transitioning-out-right', 'transitioning-out-left', 'transitioning-in-left', 'transitioning-in-right');
+            
+            // Forzar reflow para que CSS reconozca el cambio
+            void modalImage.offsetWidth;
+            
+            // Mostrar primero la imagen en baja calidad
+            const lowResUrl = getCloudinaryUrlDirect(imageId, 200, 200);
+            const highResUrl = getCloudinaryUrlDirect(imageId, 1200, 1200);
+            modalImage.src = lowResUrl;
+            modalImage.alt = title;
+            modalImage.style.filter = 'blur(10px) grayscale(0.5)';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Aplicar animación correcta basada en si es primera apertura o transición
+            if (skipTransition) {
+                // Primera apertura: zoomIn
+                modalImage.classList.add('transitioning-zoom-in');
+            } else {
+                // Transición entre imágenes: slide
+                if (lastDirection === 'right') {
+                    modalImage.classList.add('transitioning-in-left');
+                } else {
+                    modalImage.classList.add('transitioning-in-right');
+                }
+            }
+            
+            // Precargar la imagen en alta calidad
+            const imgHigh = new window.Image();
+            imgHigh.src = highResUrl;
+            imgHigh.onload = () => {
+                modalImage.src = highResUrl;
+                modalImage.style.transition = 'filter 0.5s';
+                modalImage.style.filter = 'none';
+            };
+            
+            // Actualizar enlaces de acciones
+            if (downloadBtn) {
+                downloadBtn.href = highResUrl;
+                downloadBtn.setAttribute('download', title.replace(/\s+/g, '_') + '.jpg');
+            }
+            if (whatsappBtn) {
+                const text = encodeURIComponent('¡Mira esta foto del viaje Salerm Cádiz! ' + highResUrl);
+                whatsappBtn.href = `https://wa.me/?text=${text}`;
+            }
+            if (facebookBtn) {
+                facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(highResUrl)}`;
+            }
+            if (instagramBtn) {
+                instagramBtn.href = 'https://www.instagram.com/';
+            }
         }
     }
 }
 
 function showNextImage() {
     if (allImages.length > 0) {
+        lastDirection = 'right'; // Hacia adelante = sale por la derecha, entra por la izquierda
         currentImageIndex = (currentImageIndex + 1) % allImages.length;
         const image = allImages[currentImageIndex];
         openModal(image.id, image.titulo);
@@ -125,6 +170,7 @@ function showNextImage() {
 
 function showPrevImage() {
     if (allImages.length > 0) {
+        lastDirection = 'left'; // Hacia atrás = sale por la izquierda, entra por la derecha
         currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
         const image = allImages[currentImageIndex];
         openModal(image.id, image.titulo);
