@@ -1,6 +1,20 @@
 // Configuración de Cloudinary
 const CLOUDINARY_CLOUD_NAME = 'galerycordoba';
 
+// Array de mensajes inspiradores para el spinner
+const LOADING_MESSAGES = [
+    'Buscando momentos...',
+    'Cargando recuerdos...',
+    'Capturando emociones...',
+    'Desempolvando recuerdos...',
+    'Recopilando historias...',
+    'Evocando sensaciones...',
+    'Guardando instantes...',
+    'Reuniendo momentos felices...',
+    'Descubriendo aventuras...',
+    'Recuperando vivencias...'
+];
+
 // Variables globales para modal navigation
 let allImages = [];
 let currentImageIndex = 0;
@@ -11,8 +25,42 @@ function getCloudinaryUrlDirect(imageId, width = 400, height = 400) {
     return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/w_${width},h_${height},c_fill,q_auto,f_auto/${imageId}`;
 }
 
+// Función para obtener un mensaje aleatorio del array
+function getRandomLoadingMessage() {
+    return LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
+}
+
+// Función para actualizar el mensaje del spinner de forma dinámica
+function startSpinnerMessageRotation() {
+    const spinnerText = document.querySelector('.spinner-text');
+    if (!spinnerText) return;
+
+    // Actualizar mensaje cada 1.2 segundos
+    const interval = setInterval(() => {
+        spinnerText.style.opacity = '0.3';
+        setTimeout(() => {
+            spinnerText.textContent = getRandomLoadingMessage();
+            spinnerText.style.opacity = '0.8';
+            spinnerText.style.transition = 'opacity 0.3s ease';
+        }, 150);
+    }, 1200);
+
+    return interval;
+}
+
 // Cargar galería con precarga en caché
 async function loadGallery() {
+    const spinner = document.getElementById('gallery-spinner');
+    const spinnerText = document.querySelector('.spinner-text');
+    
+    // Mostrar primer mensaje aleatorio
+    if (spinnerText) {
+        spinnerText.textContent = getRandomLoadingMessage();
+    }
+    
+    // Iniciar rotación de mensajes
+    const messageInterval = startSpinnerMessageRotation();
+    
     try {
         const response = await fetch('./data.json');
         const images = await response.json();
@@ -45,6 +93,12 @@ async function loadGallery() {
         });
         await Promise.all(preloadLargePromises);
 
+        // Esperar 1.5 segundos adicionales para asegurar que todo esté en caché
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Detener rotación de mensajes
+        clearInterval(messageInterval);
+
         // Crear elementos de galería
         images.forEach((image, index) => {
             const imageUrl = getCloudinaryUrlDirect(image.id, 400, 400);
@@ -64,9 +118,22 @@ async function loadGallery() {
 
         // Inicializar scroll dots
         initScrollDots(images.length);
+
+        // Ocultar spinner con animación suave
+        if (spinner) {
+            spinner.classList.add('hidden');
+        }
     } catch (error) {
         console.error('Error al cargar la galería:', error);
         alert('Error al cargar la galería. Verifica tu archivo data.json y la configuración de Cloudinary');
+        
+        // Detener rotación de mensajes en caso de error
+        clearInterval(messageInterval);
+        
+        // Ocultar spinner incluso si hay error
+        if (spinner) {
+            spinner.classList.add('hidden');
+        }
     }
 }
 
