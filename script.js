@@ -1,13 +1,7 @@
 // Configuración de Cloudinary
 const CLOUDINARY_CLOUD_NAME = 'galerycordoba';
-const CLOUDINARY_TRANSFORMATIONS = 'w_400,h_400,c_fill,q_auto,f_auto';
 
 // Función para construir URL de Cloudinary
-function getCloudinaryUrl(imageId, width = 400, height = 400) {
-    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/fetch/w_${width},h_${height},c_fill,q_auto,f_auto/https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${imageId}`;
-}
-
-// Función alternativa usando el método directo
 function getCloudinaryUrlDirect(imageId, width = 400, height = 400) {
     return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/w_${width},h_${height},c_fill,q_auto,f_auto/${imageId}`;
 }
@@ -18,39 +12,33 @@ async function loadGallery() {
         const response = await fetch('./data.json');
         const images = await response.json();
 
-        const galleryContainer = document.getElementById('gallery');
-        const loadingDiv = document.getElementById('loading');
+        const galleryWrapper = document.getElementById('gallery_wrapper');
 
         // Limpiar galería
-        galleryContainer.innerHTML = '';
+        galleryWrapper.innerHTML = '';
 
         // Crear elementos de galería
         images.forEach((image, index) => {
-            const imageUrl = getCloudinaryUrlDirect(image.id);
-            const imageLargeUrl = getCloudinaryUrlDirect(image.id, 800, 800);
+            const imageUrl = getCloudinaryUrlDirect(image.id, 400, 400);
+            const imageLargeUrl = getCloudinaryUrlDirect(image.id, 1200, 1200);
 
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'gallery-item';
-            galleryItem.innerHTML = `
-                <img src="${imageUrl}" alt="${image.alt}" loading="lazy">
-                <div class="gallery-item-overlay">
-                    <div class="gallery-item-title">${image.titulo}</div>
-                    <div class="gallery-item-alt">${image.alt}</div>
-                </div>
-            `;
-
-            galleryItem.addEventListener('click', () => openModal(imageLargeUrl, image.titulo));
-            galleryContainer.appendChild(galleryItem);
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = image.alt;
+            img.loading = 'lazy';
+            img.title = image.titulo;
+            img.style.cursor = 'pointer';
+            
+            // Click para abrir modal
+            img.addEventListener('click', () => {
+                openModal(imageLargeUrl, image.titulo);
+            });
+            
+            galleryWrapper.appendChild(img);
         });
-
-        // Ocultar loading
-        loadingDiv.style.display = 'none';
     } catch (error) {
         console.error('Error al cargar la galería:', error);
-        document.getElementById('loading').innerHTML = `
-            <p style="color: #ff6b6b;">Error al cargar la galería</p>
-            <p style="font-size: 0.9rem; opacity: 0.8;">Verifica tu archivo data.json y la configuración de Cloudinary</p>
-        `;
+        alert('Error al cargar la galería. Verifica tu archivo data.json y la configuración de Cloudinary');
     }
 }
 
@@ -58,31 +46,48 @@ async function loadGallery() {
 function openModal(imageSrc, title) {
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
-    modalImage.src = imageSrc;
-    modalImage.alt = title;
-    modal.classList.add('active');
+    
+    if (modal && modalImage) {
+        modalImage.src = imageSrc;
+        modalImage.alt = title;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Evitar scroll del body
+    }
 }
 
 function closeModal() {
     const modal = document.getElementById('modal');
-    modal.classList.remove('active');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto'; // Restaurar scroll
+    }
 }
 
-// Event listeners del modal
-document.getElementById('modal').addEventListener('click', (e) => {
-    if (e.target.id === 'modal') {
-        closeModal();
+// Event listeners del modal - Se ejecutan cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', () => {
+    // Cerrar modal al hacer click en la X
+    const closeBtn = document.querySelector('.modal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
     }
-});
 
-document.querySelector('.modal-close').addEventListener('click', closeModal);
-
-// Cerrar modal con tecla ESC
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
+    // Cerrar modal al hacer click en el área de fondo
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
     }
-});
 
-// Cargar galería cuando se carga el DOM
-document.addEventListener('DOMContentLoaded', loadGallery);
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    // Cargar galería
+    loadGallery();
+});
