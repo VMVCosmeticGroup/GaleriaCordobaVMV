@@ -376,6 +376,47 @@ function initScrollDots(totalImages) {
             setScrollBlocked(false);
         }, 800);
     }, { passive: false });
+
+    // Flechas arriba/abajo para moverse entre puntos (listener en document)
+    document.addEventListener('keydown', (e) => {
+        if (isSnapping) return;
+        if (e.key === 'ArrowDown') {
+            isSnapping = true;
+            setScrollBlocked(true);
+            currentIndex = Math.min(currentIndex + 1, snapPositions.length - 1);
+            container.scrollTo({
+                top: snapPositions[currentIndex],
+                behavior: 'smooth'
+            });
+            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+            clearTimeout(snapTimeout);
+            snapTimeout = setTimeout(() => {
+                isSnapping = false;
+                setScrollBlocked(false);
+            }, 800);
+            e.preventDefault();
+        }
+        if (e.key === 'ArrowUp') {
+            isSnapping = true;
+            setScrollBlocked(true);
+            currentIndex = Math.max(currentIndex - 1, 0);
+            container.scrollTo({
+                top: snapPositions[currentIndex],
+                behavior: 'smooth'
+            });
+            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+            clearTimeout(snapTimeout);
+            snapTimeout = setTimeout(() => {
+                isSnapping = false;
+                setScrollBlocked(false);
+            }, 800);
+            e.preventDefault();
+        }
+    });
 }
 
 // Event listeners del modal - Se ejecutan cuando el DOM está listo
