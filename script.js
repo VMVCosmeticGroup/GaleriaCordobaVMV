@@ -6,16 +6,38 @@ function getCloudinaryUrlDirect(imageId, width = 400, height = 400) {
     return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/w_${width},h_${height},c_fill,q_auto,f_auto/${imageId}`;
 }
 
-// Cargar galería
+// Cargar galería con precarga en caché
 async function loadGallery() {
     try {
         const response = await fetch('./data.json');
         const images = await response.json();
 
         const galleryWrapper = document.getElementById('gallery_wrapper');
-
-        // Limpiar galería
         galleryWrapper.innerHTML = '';
+
+        // Precargar todas las imágenes en caché
+        const preloadPromises = images.map(image => {
+            return new Promise(resolve => {
+                const imageUrl = getCloudinaryUrlDirect(image.id, 400, 400);
+                const imgPreload = new window.Image();
+                imgPreload.src = imageUrl;
+                imgPreload.onload = () => resolve();
+                imgPreload.onerror = () => resolve();
+            });
+        });
+        await Promise.all(preloadPromises);
+
+        // Precargar todas las imágenes grandes en caché (para el modal)
+        const preloadLargePromises = images.map(image => {
+            return new Promise(resolve => {
+                const imageLargeUrl = getCloudinaryUrlDirect(image.id, 1200, 1200);
+                const imgLargePreload = new window.Image();
+                imgLargePreload.src = imageLargeUrl;
+                imgLargePreload.onload = () => resolve();
+                imgLargePreload.onerror = () => resolve();
+            });
+        });
+        await Promise.all(preloadLargePromises);
 
         // Crear elementos de galería
         images.forEach((image, index) => {
@@ -28,12 +50,9 @@ async function loadGallery() {
             img.loading = 'lazy';
             img.title = image.titulo;
             img.style.cursor = 'pointer';
-            
-            // Click para abrir modal
             img.addEventListener('click', () => {
-                openModal(imageLargeUrl, image.titulo);
+                openModal(image.id, image.titulo);
             });
-            
             galleryWrapper.appendChild(img);
         });
     } catch (error) {
@@ -43,15 +62,67 @@ async function loadGallery() {
 }
 
 // Funciones del Modal
-function openModal(imageSrc, title) {
+function openModal(imageId, title) {
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
-    
+    const downloadBtn = document.getElementById('download-btn');
+    const whatsappBtn = document.getElementById('whatsapp-btn');
+    const facebookBtn = document.getElementById('facebook-btn');
+    const instagramBtn = document.getElementById('instagram-btn');
     if (modal && modalImage) {
-        modalImage.src = imageSrc;
+        // Mostrar primero la imagen en baja calidad
+        const lowResUrl = getCloudinaryUrlDirect(imageId, 200, 200);
+        const highResUrl = getCloudinaryUrlDirect(imageId, 1200, 1200);
+        modalImage.src = lowResUrl;
         modalImage.alt = title;
+        modalImage.style.filter = 'blur(10px) grayscale(0.5)';
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; // Evitar scroll del body
+        // Precargar la imagen en alta calidad
+        const imgHigh = new window.Image();
+        imgHigh.src = highResUrl;
+        imgHigh.onload = () => {
+            // Transición suave
+            modalImage.src = highResUrl;
+            modalImage.style.transition = 'filter 0.5s';
+            modalImage.style.filter = 'none';
+        };
+        // Descargar imagen
+        if (downloadBtn) {
+            downloadBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = highResUrl;
+                a.download = title.replace(/\s+/g, '_') + '.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+        // Compartir en WhatsApp
+        if (whatsappBtn) {
+            whatsappBtn.onclick = () => {
+                const url = encodeURIComponent(highResUrl);
+                const text = encodeURIComponent('¡Mira esta foto! ' + title + ' ' + highResUrl);
+                window.open(`https://wa.me/?text=${text}`,'_blank');
+            };
+        }
+        // Compartir en Facebook
+        if (facebookBtn) {
+            facebookBtn.onclick = () => {
+                const url = encodeURIComponent(highResUrl);
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`,'_blank');
+            };
+        }
+        // Copiar enlace para Instagram
+        if (instagramBtn) {
+            instagramBtn.onclick = () => {
+                navigator.clipboard.writeText(highResUrl);
+                instagramBtn.textContent = '¡Enlace copiado!';
+                setTimeout(() => {
+                    instagramBtn.textContent = 'Copiar enlace';
+                }, 1500);
+            };
+        }
     }
 }
 

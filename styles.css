@@ -156,3 +156,23 @@ body {
         font-size: 40px;
     }
 }
+
+#modal-actions button {
+  background: #fff;
+  color: #222;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  margin: 0 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+#modal-actions button:hover {
+  background: #222;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
