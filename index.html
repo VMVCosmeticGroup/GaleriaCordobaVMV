@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Imágenes - Cloudinary</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ Galería de Imágenes</h1>
+            <p class="subtitle">Imágenes desde Cloudinary</p>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Cargando galería...</p>
+        </div>
+        
+        <div id="gallery" class="gallery"></div>
+    </div>
+    
+    <!-- Modal para ver imágenes en grande -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modal-image" src="" alt="Imagen ampliada">
+        </div>
+    </div>
+    
+</body>
+<script src="script.js"></script>
+</html>
