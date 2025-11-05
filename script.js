@@ -273,10 +273,21 @@ function initScrollDots(totalImages) {
         dot.addEventListener('click', () => {
             const container = document.getElementById('gallery-container');
             const scrollHeight = (container.scrollHeight - container.clientHeight) / (visibleDots - 1 || 1);
+            // Saltar el bloqueo para los dots
+            isSnapping = true;
+            setScrollBlocked(false);
+            currentIndex = i;
             container.scrollTo({
                 top: scrollHeight * i,
                 behavior: 'smooth'
             });
+            document.querySelectorAll('.scroll-dot').forEach((dotEl, idx) => {
+                dotEl.classList.toggle('active', idx === i);
+            });
+            clearTimeout(snapTimeout);
+            snapTimeout = setTimeout(() => {
+                isSnapping = false;
+            }, 800);
         });
         scrollDotsContainer.appendChild(dot);
     }
@@ -290,29 +301,81 @@ function initScrollDots(totalImages) {
     }
 
     let currentIndex = 0;
-    // Margen de detección bajo
-    const DETECTION_MARGIN = 0.5;
+    const DETECTION_MARGIN = 8.5;
+    let snapTimeout;
+    function setScrollBlocked(blocked) {
+        const container = document.getElementById('gallery-container');
+        if (blocked) {
+            container.style.overflow = 'hidden';
+        } else {
+            container.style.overflowY = 'scroll';
+        }
+    }
+
+    // Sincroniza el índice si el usuario hace scroll por otros medios
+    container.addEventListener('scroll', () => {
+        if (isSnapping) return;
+        // Buscar el snap más cercano
+        const currentScroll = container.scrollTop;
+        let closestIdx = 0;
+        let minDist = Math.abs(currentScroll - snapPositions[0]);
+        for (let i = 1; i < snapPositions.length; i++) {
+            const dist = Math.abs(currentScroll - snapPositions[i]);
+            if (dist < minDist) {
+                minDist = dist;
+                closestIdx = i;
+            }
+        }
+        // Si no está en un snap, forzar snap
+        if (minDist > DETECTION_MARGIN) {
+            isSnapping = true;
+            setScrollBlocked(true);
+            currentIndex = closestIdx;
+            container.scrollTo({
+                top: snapPositions[currentIndex],
+                behavior: 'smooth'
+            });
+            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+            clearTimeout(snapTimeout);
+            snapTimeout = setTimeout(() => {
+                isSnapping = false;
+                setScrollBlocked(false);
+            }, 800);
+        } else {
+            currentIndex = closestIdx;
+            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+    });
 
     container.addEventListener('wheel', (e) => {
-        if (isSnapping) return;
+        if (isSnapping) {
+            e.preventDefault();
+            return;
+        }
         isSnapping = true;
+        setScrollBlocked(true);
         if (e.deltaY > DETECTION_MARGIN) {
-            // Scroll hacia abajo
             currentIndex = Math.min(currentIndex + 1, snapPositions.length - 1);
         } else if (e.deltaY < -DETECTION_MARGIN) {
-            // Scroll hacia arriba
             currentIndex = Math.max(currentIndex - 1, 0);
         }
         container.scrollTo({
             top: snapPositions[currentIndex],
             behavior: 'smooth'
         });
-        // Actualizar dots activos
         document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
             dot.classList.toggle('active', index === currentIndex);
         });
-        setTimeout(() => { isSnapping = false; }, 350);
-    });
+        clearTimeout(snapTimeout);
+        snapTimeout = setTimeout(() => {
+            isSnapping = false;
+            setScrollBlocked(false);
+        }, 800);
+    }, { passive: false });
 }
 
 // Event listeners del modal - Se ejecutan cuando el DOM está listo
