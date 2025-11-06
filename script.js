@@ -209,8 +209,27 @@ function openModal(imageId, title, skipTransition = false) {
             
             // Actualizar enlaces de acciones
             if (downloadBtn) {
-                downloadBtn.href = highResUrl;
-                downloadBtn.setAttribute('download', title.replace(/\s+/g, '_') + '.jpg');
+                downloadBtn.removeAttribute('download');
+                downloadBtn.href = '#';
+                downloadBtn.onclick = async function(e) {
+                    e.preventDefault();
+                    try {
+                        const response = await fetch(highResUrl);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = title.replace(/\s+/g, '_') + '.jpg';
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(() => {
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                        }, 100);
+                    } catch (err) {
+                        alert('No se pudo descargar la imagen.');
+                    }
+                };
             }
             if (whatsappBtn) {
                 const text = encodeURIComponent('¡Mira esta foto del viaje Salerm Cádiz! ' + highResUrl);
