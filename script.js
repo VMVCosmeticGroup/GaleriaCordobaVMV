@@ -84,7 +84,7 @@ async function loadGallery() {
         // Precargar todas las imágenes grandes en caché (para el modal)
         const preloadLargePromises = images.map(image => {
             return new Promise(resolve => {
-                const imageLargeUrl = getCloudinaryUrlDirect(image.id, 1200, 1200);
+                const imageLargeUrl = getCloudinaryUrlDirect(image.id, 1000, 1000);
                 const imgLargePreload = new window.Image();
                 imgLargePreload.src = imageLargeUrl;
                 imgLargePreload.onload = () => resolve();
@@ -94,7 +94,7 @@ async function loadGallery() {
         await Promise.all(preloadLargePromises);
 
         // Esperar 2.5 segundos adicionales para asegurar que todo esté en caché
-        await new Promise(resolve => setTimeout(resolve, 2800));
+        await new Promise(resolve => setTimeout(resolve, 2100));
 
         // Detener rotación de mensajes
         clearInterval(messageInterval);
@@ -116,8 +116,7 @@ async function loadGallery() {
             galleryWrapper.appendChild(img);
         });
 
-        // Inicializar scroll dots
-        initScrollDots(images.length);
+
 
         // Ocultar spinner con animación suave
         if (spinner) {
@@ -181,7 +180,7 @@ function openModal(imageId, title, skipTransition = false) {
             const highResUrl = getCloudinaryUrlDirect(imageId, 1200, 1200);
             modalImage.src = lowResUrl;
             modalImage.alt = title;
-            modalImage.style.filter = 'blur(10px) grayscale(0.5)';
+            modalImage.style.filter = 'blur(20px) grayscale(0.5)';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
@@ -232,7 +231,7 @@ function openModal(imageId, title, skipTransition = false) {
                 };
             }
             if (whatsappBtn) {
-                const text = encodeURIComponent('¡Mira esta foto del viaje Salerm Cádiz! ' + highResUrl);
+                const text = encodeURIComponent('¡Mira esta foto del viaje de Salerm en Cádiz! ' + highResUrl);
                 whatsappBtn.href = `https://wa.me/?text=${text}`;
             }
             if (facebookBtn) {
@@ -271,172 +270,6 @@ function closeModal() {
     }
 }
 
-// Scroll Dots Handler
-let scrollDotsCount = 0;
-
-function initScrollDots(totalImages) {
-    // Calcular número de filas (16 columnas con 2 span = 8 imágenes por fila)
-    const imagesPerRow = 8;
-    const rows = Math.ceil(totalImages / imagesPerRow);
-    // Mostrar solo un tercio de los puntos
-    const visibleDots = Math.max(1, Math.ceil(rows / 3));
-    scrollDotsCount = rows;
-
-    const scrollDotsContainer = document.getElementById('scroll-dots');
-    scrollDotsContainer.innerHTML = '';
-
-    for (let i = 0; i < visibleDots; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'scroll-dot';
-        if (i === 0) dot.classList.add('active');
-        dot.addEventListener('click', () => {
-            const container = document.getElementById('gallery-container');
-            const scrollHeight = (container.scrollHeight - container.clientHeight) / (visibleDots - 1 || 1);
-            // Saltar el bloqueo para los dots
-            isSnapping = true;
-            setScrollBlocked(false);
-            currentIndex = i;
-            container.scrollTo({
-                top: scrollHeight * i,
-                behavior: 'smooth'
-            });
-            document.querySelectorAll('.scroll-dot').forEach((dotEl, idx) => {
-                dotEl.classList.toggle('active', idx === i);
-            });
-            clearTimeout(snapTimeout);
-            snapTimeout = setTimeout(() => {
-                isSnapping = false;
-            }, 800);
-        });
-        scrollDotsContainer.appendChild(dot);
-    }
-
-    // Scroll snap: salta al siguiente punto según dirección
-    const container = document.getElementById('gallery-container');
-    let isSnapping = false;
-    const snapPositions = [];
-    for (let i = 0; i < visibleDots; i++) {
-        snapPositions.push((container.scrollHeight - container.clientHeight) * (i / (visibleDots - 1 || 1)));
-    }
-
-    let currentIndex = 0;
-    const DETECTION_MARGIN = 8.5;
-    let snapTimeout;
-    function setScrollBlocked(blocked) {
-        const container = document.getElementById('gallery-container');
-        if (blocked) {
-            container.style.overflow = 'hidden';
-        } else {
-            container.style.overflowY = 'scroll';
-        }
-    }
-
-    // Sincroniza el índice si el usuario hace scroll por otros medios
-    container.addEventListener('scroll', () => {
-        if (isSnapping) return;
-        // Buscar el snap más cercano
-        const currentScroll = container.scrollTop;
-        let closestIdx = 0;
-        let minDist = Math.abs(currentScroll - snapPositions[0]);
-        for (let i = 1; i < snapPositions.length; i++) {
-            const dist = Math.abs(currentScroll - snapPositions[i]);
-            if (dist < minDist) {
-                minDist = dist;
-                closestIdx = i;
-            }
-        }
-        // Si no está en un snap, forzar snap
-        if (minDist > DETECTION_MARGIN) {
-            isSnapping = true;
-            setScrollBlocked(true);
-            currentIndex = closestIdx;
-            container.scrollTo({
-                top: snapPositions[currentIndex],
-                behavior: 'smooth'
-            });
-            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
-            clearTimeout(snapTimeout);
-            snapTimeout = setTimeout(() => {
-                isSnapping = false;
-                setScrollBlocked(false);
-            }, 800);
-        } else {
-            currentIndex = closestIdx;
-            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
-        }
-    });
-
-    container.addEventListener('wheel', (e) => {
-        if (isSnapping) {
-            e.preventDefault();
-            return;
-        }
-        isSnapping = true;
-        setScrollBlocked(true);
-        if (e.deltaY > DETECTION_MARGIN) {
-            currentIndex = Math.min(currentIndex + 1, snapPositions.length - 1);
-        } else if (e.deltaY < -DETECTION_MARGIN) {
-            currentIndex = Math.max(currentIndex - 1, 0);
-        }
-        container.scrollTo({
-            top: snapPositions[currentIndex],
-            behavior: 'smooth'
-        });
-        document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentIndex);
-        });
-        clearTimeout(snapTimeout);
-        snapTimeout = setTimeout(() => {
-            isSnapping = false;
-            setScrollBlocked(false);
-        }, 800);
-    }, { passive: false });
-
-    // Flechas arriba/abajo para moverse entre puntos (listener en document)
-    document.addEventListener('keydown', (e) => {
-        if (isSnapping) return;
-        if (e.key === 'ArrowDown') {
-            isSnapping = true;
-            setScrollBlocked(true);
-            currentIndex = Math.min(currentIndex + 1, snapPositions.length - 1);
-            container.scrollTo({
-                top: snapPositions[currentIndex],
-                behavior: 'smooth'
-            });
-            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
-            clearTimeout(snapTimeout);
-            snapTimeout = setTimeout(() => {
-                isSnapping = false;
-                setScrollBlocked(false);
-            }, 800);
-            e.preventDefault();
-        }
-        if (e.key === 'ArrowUp') {
-            isSnapping = true;
-            setScrollBlocked(true);
-            currentIndex = Math.max(currentIndex - 1, 0);
-            container.scrollTo({
-                top: snapPositions[currentIndex],
-                behavior: 'smooth'
-            });
-            document.querySelectorAll('.scroll-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
-            clearTimeout(snapTimeout);
-            snapTimeout = setTimeout(() => {
-                isSnapping = false;
-                setScrollBlocked(false);
-            }, 800);
-            e.preventDefault();
-        }
-    });
-}
 
 // Event listeners del modal - Se ejecutan cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', () => {

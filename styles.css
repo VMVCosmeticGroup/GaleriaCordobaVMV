@@ -3,7 +3,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Outfit', sans-serif;
-    
 }
 
 body {
@@ -15,16 +14,13 @@ body {
     background-size: 120%;
     animation: scroll 400s linear infinite reverse;
     overflow: hidden;
-    
 }
-
 
 @keyframes scroll {
     100% {
         background-position: 0px -400%;
     }
 }
-
 
 /* Spinner de carga */
 .gallery-spinner {
@@ -41,6 +37,7 @@ body {
     z-index: 9999;
     backdrop-filter: blur(10px);
     transition: opacity 0.5s ease, visibility 0.5s ease;
+    will-change: opacity;
 }
 
 .gallery-spinner.hidden {
@@ -56,6 +53,7 @@ body {
     border-top: 4px solid #ffffff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    will-change: transform;
 }
 
 @keyframes spin {
@@ -71,6 +69,7 @@ body {
     letter-spacing: 1px;
     text-transform: uppercase;
     animation: breatheText 2s ease-in-out infinite;
+    will-change: opacity;
 }
 
 @keyframes breatheText {
@@ -96,77 +95,19 @@ body {
     display: none;
 }
 
-/* Scroll Dots Indicator - Barra horizontal flotante inferior */
-.scroll-dots {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    z-index: 500;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 12px 20px;
-    border-radius: 50px;
-    backdrop-filter: blur(10px);
-}
-
-.scroll-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    animation: breathe 3s ease-in-out infinite;
-}
-
-.scroll-dot:hover {
-    background: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-    animation: none;
-}
-
-.scroll-dot.active {
-    background: #fff;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-    transform: scale(1.3);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes breathe {
-    0%, 100% {
-        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-    }
-    50% {
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-    }
-}
-
-
 /* Gallery Title */
 .gallery-title {
-	text-align: center;
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	padding: 0 20px;
-	max-width: 95vw;
-	margin: 0 auto;
-	animation: fadeInDown 0.8s ease-out;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    max-width: 95vw;
+    margin: 0 auto;
+    animation: fadeInDown 0.8s ease-out;
+    will-change: transform, opacity;
 }
 
 .gallery-title h1 {
@@ -194,28 +135,27 @@ body {
 }
 
 @keyframes fadeInDown {
-	from {
-		opacity: 0;
-		transform: translateY(-20px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+    from {
+        opacity: 0;
+        transform: translate3d(0, -20px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
 }
 
 /* Gallery Component */
 .gallery_wrapper {
-	--img-size: calc(100px - 0.5rem / 2); 
-	display: grid;
-	gap: 0.5rem;
-    /* 16 columnas (8 imágenes * span 2) para el ancho */
-	grid-template-columns: repeat(16, var(--img-size));
-	grid-auto-rows: var(--img-size);
-	margin: 0 auto 80px;
-	width: fit-content;
-	max-width: 95vw;
-} 
+    --img-size: calc(100px - 0.5rem / 2); 
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(16, var(--img-size));
+    grid-auto-rows: var(--img-size);
+    margin: 0 auto 80px;
+    width: fit-content;
+    max-width: 95vw;
+}
 
 .gallery_wrapper img {
     max-width: 100%;
@@ -227,41 +167,40 @@ body {
     clip-path: path(
         "M 80 20 C 100 0 100 0 120 20 C 140 40 160 60 180 80 C 200 100 200 100 180 120 C 160 140 140 160 120 180 C 100 200 100 200 80 180 C 60 160 40 140 20 120 C 0 100 0 100 20 80 Z"
     );
-    transition: filter 500ms, clip-path 500ms, box-shadow 400ms;
+    transition: filter 500ms, clip-path 500ms, box-shadow 400ms, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 6px 32px 0 rgba(0,0,0,0.22), 0 1.5px 6px 0 rgba(0,0,0,0.18);
+    will-change: transform, filter, box-shadow;
 }
 
 .gallery_wrapper img:nth-of-type(15n + 9) {
-	grid-column: 2 / span 2;
+    grid-column: 2 / span 2;
 }
 
 .gallery_wrapper img:hover {
-	z-index: 100;
-	clip-path: path(
-		"M 0 0 C 100 0 100 0 200 0 C 200 50 200 50 200 80 C 200 100 200 100 200 120 C 200 150 200 150 200 200 C 100 200 100 200 0 200 C 0 150 0 150 0 120 C 0 100 0 100 0 80 Z"
-	);
+    z-index: 100;
+    clip-path: path(
+        "M 0 0 C 100 0 100 0 200 0 C 200 50 200 50 200 80 C 200 100 200 100 200 120 C 200 150 200 150 200 200 C 100 200 100 200 0 200 C 0 150 0 150 0 120 C 0 100 0 100 0 80 Z"
+    );
+    transform: translate3d(0, 0, 0) scale3d(1.04, 1.04, 1);
 }
 
 .gallery_wrapper img:not(:hover) {
-	animation: zIndexFix 500ms;
+    animation: zIndexFix 500ms;
 }
 
 .gallery_wrapper:hover > img {
-	filter: brightness(0.8) saturate(0.8);
+    filter: brightness(0.8) saturate(0.8);
 }
 
 .gallery_wrapper > img:hover {
-	filter: brightness(1) saturate(1.2);
+    filter: brightness(1) saturate(1.2);
 }
 
 @keyframes zIndexFix {
-	0%,
-	100% {
-		z-index: 10;
-	}
+    0%, 100% {
+        z-index: 10;
+    }
 }
-
-
 
 /* Modal */
 .modal {
@@ -293,15 +232,16 @@ body {
     max-height: 105vh;
     gap: 20px;
     flex-direction: column;
+    will-change: transform, opacity;
 }
 
 @keyframes zoomIn {
     from {
-        transform: scale(0.8);
+        transform: translate3d(0, 0, 0) scale3d(0.8, 0.8, 1);
         opacity: 0;
     }
     to {
-        transform: scale(1);
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
         opacity: 1;
     }
 }
@@ -309,44 +249,44 @@ body {
 @keyframes slideOutRight {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
     to {
         opacity: 0;
-        transform: translateX(100px);
+        transform: translate3d(100px, 0, 0);
     }
 }
 
 @keyframes slideInLeft {
     from {
         opacity: 0;
-        transform: translateX(-100px);
+        transform: translate3d(-100px, 0, 0);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 
 @keyframes slideOutLeft {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
     to {
         opacity: 0;
-        transform: translateX(-100px);
+        transform: translate3d(-100px, 0, 0);
     }
 }
 
 @keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(100px);
+        transform: translate3d(100px, 0, 0);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 
@@ -356,26 +296,27 @@ body {
     max-height: 85vh;
     object-fit: contain;
     display: block;
+    will-change: transform, opacity, filter;
 }
 
 #modal-image.transitioning-zoom-in {
-    animation: zoomIn 0.4s ease forwards;
+    animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 #modal-image.transitioning-out-right {
-    animation: slideOutRight 0.4s ease forwards;
+    animation: slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 #modal-image.transitioning-in-left {
-    animation: slideInLeft 0.4s ease forwards;
+    animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 #modal-image.transitioning-out-left {
-    animation: slideOutLeft 0.4s ease forwards;
+    animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 #modal-image.transitioning-in-right {
-    animation: slideInRight 0.4s ease forwards;
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Modal Navigation Arrows */
@@ -393,31 +334,21 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
     z-index: 10;
-    animation: float 3s ease-in-out infinite;
+    will-change: transform, opacity, background;
 }
 
 .modal-arrow:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-    transform: translateY(-50%) scale(1.1);
-    animation: none;
+    transform: translateY(-50%) scale3d(1.1, 1.1, 1);
 }
 
 .modal-arrow:active {
-    transform: translateY(-50%) scale(0.95);
-}
-
-@keyframes float {
-    0%, 100% {
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    }
+    transform: translateY(-50%) scale3d(0.95, 0.95, 1);
 }
 
 .modal-arrow-prev {
@@ -464,21 +395,20 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.25);
     color: white;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
-    animation: breatheButton 3s ease-in-out infinite;
+    will-change: transform, opacity, background;
 }
 
 .modal-action-btn:hover {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 5px 25px rgba(255, 255, 255, 0.3);
-    transform: translateY(-5px) scale(1.1);
-    animation: none;
+    transform: translate3d(0, -5px, 0) scale3d(1.1, 1.1, 1);
 }
 
 .modal-action-btn:active {
-    transform: translateY(-2px) scale(1.05);
+    transform: translate3d(0, -2px, 0) scale3d(1.05, 1.05, 1);
 }
 
 .modal-action-btn svg {
@@ -522,15 +452,6 @@ body {
     color: #E1306C;
 }
 
-@keyframes breatheButton {
-    0%, 100% {
-        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-    }
-}
-
 /* Close Button */
 .modal-close {
     position: absolute;
@@ -540,9 +461,10 @@ body {
     font-size: 50px;
     font-weight: bold;
     cursor: pointer;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), text-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
     z-index: 1001;
+    will-change: color, text-shadow;
 }
 
 .modal-close:hover {
@@ -553,399 +475,105 @@ body {
 /* --- TABLET Y MÓVIL (desde 1024px hacia abajo) --- */
 @media (max-width: 1024px) {
     
-    /* 1. Ajustamos la galería para el nuevo patrón (2xN) */
     .gallery_wrapper {
         width: 100%; 
         max-width: 95vw; 
-        /* Usamos 2 columnas flexibles, esto garantiza que no haya overflow */
         grid-template-columns: repeat(2, 1fr); 
-        /* Reducimos el tamaño de la fila base */
         --img-size: calc(100px - 0.5rem / 2); 
         grid-auto-rows: var(--img-size);
         justify-items: center; 
     }
 
-    /* 2. ANULACIÓN TOTAL DEL CLIP-PATH Y PATRONES */
     .gallery_wrapper img {
-        /* ANULACIÓN DEL CLIP-PATH BASE */
         clip-path: none !important; 
-        /* ANULACIÓN DE ANIMACIONES Y TRANSICIONES ASOCIADAS AL CLIP-PATH */
         transition: filter 500ms, box-shadow 400ms !important; 
-        /* Todas las imágenes ocupan 1 columna (el 50% del ancho) */
         grid-column: span 1 !important; 
-        /* Aseguramos la forma cuadrada/redondeada */
         border-radius: 0.5rem;
         max-width: 100%; 
+        will-change: transform, filter, box-shadow;
     }
     
-    /* ANULACIÓN DEL CLIP-PATH EN ESTADO HOVER */
     .gallery_wrapper img:hover {
         clip-path: none !important; 
     }
     
-    /* RESET DE PATRONES ANTERIORES */
-    /* Reseteamos el patrón de escritorio (15n + 9) */
-    .gallery_wrapper img:nth-of-type(15n + 9) {
-        grid-column: span 1 !important;
-    }
-    
-    /* Reseteamos cualquier patrón intermedio (3n+3, 5n+4) */
-    .gallery_wrapper img:nth-of-type(3n + 3),
-    .gallery_wrapper img:nth-of-type(5n + 4) {
-        grid-column: span 1 !important;
-    }
-
-    /* 3. Estilos de Título y Modal */
-    .gallery-title h1 {
-        font-size: 2.5rem;
-        letter-spacing: 2px;
-    }
-    .gallery-title p {
-        font-size: 1rem;
-    }
-
-    /* Resto de estilos de Tablet (modal, dots, etc.) */
-    .scroll-dots {
-        bottom: 25px;
-        padding: 10px 18px;
-        gap: 11px;
-    }
-    .scroll-dot {
-        width: 11px;
-        height: 11px;
-    }
-    .modal-arrow {
-        width: 45px;
-        height: 45px;
-    }
-    .modal-arrow-prev {
-        left: -65px;
-    }
-    .modal-arrow-next {
-        right: -65px;
-    }
-    .modal-action-btn {
-        width: 48px;
-        height: 48px;
-    }
-    .modal-close {
-        font-size: 45px;
-        top: 15px;
-        right: 30px;
-    }
-}
-
-
-/* --- MÓVIL PEQUEÑO (hasta 767px) --- */
-@media (max-width: 767px) {
-    
-    /* Estilos del cuerpo y fondo */
-    body {
-        background-size: cover;      
-        background-repeat: no-repeat; 
-        background-position: center; 
-        animation: none; 
-    }
-    
-    /* Título */
-    .gallery-title h1 {
-        font-size: 1.8rem;
-        letter-spacing: 1.5px;
-        margin-bottom: 8px;
-    }
-    .gallery-title p {
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-    }
-
-    /* Galería */
-    .gallery_wrapper {
-        --img-size: calc(85px - 0.5rem / 2); 
-    }
-
-    .gallery_wrapper img {
-        border-radius: 0.4rem;
-        box-shadow: 0 4px 20px 0 rgba(0,0,0,0.25), 0 1px 4px 0 rgba(0,0,0,0.2);
-    }
-    
-    /* Resto de estilos de Mobile (scroll, modal) ... */
-    .scroll-dots {
-        bottom: 15px;
-        padding: 8px 14px;
-        gap: 9px;
-    }
-    .scroll-dot {
-        width: 9px;
-        height: 9px;
-        border: 1.5px solid transparent;
-    }
-    .scroll-dot.active {
-        transform: scale(1.15);
-    }
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border-width: 3px;
-    }
-    .spinner-text {
-        font-size: 0.95rem;
-        margin-top: 15px;
-    }
-    .modal {
-        padding-top: 10px;
-    }
-    .modal-content {
-        width: 98%;
-        height: 100%;
-        max-height: 100vh;
-        gap: 8px;
-        padding: 0 5px;
-        justify-content: center;
-    }
-    #modal-image {
-        max-height: 75vh;
-    }
-    .modal-close {
-        top: 5px;
-        right: 10px;
-        font-size: 35px;
-    }
-    .modal-arrow {
-        width: 38px;
-        height: 38px;
-    }
-    .modal-arrow svg {
-        width: 24px;
-        height: 24px;
-    }
-    .modal-arrow-prev {
-        left: 5px;
-        top: 45%;
-    }
-    .modal-arrow-next {
-        right: 5px;
-        top: 45%;
-    }
-    .modal-actions-floating {
-        gap: 10px;
-        margin-top: 8px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .modal-action-btn {
-        width: 42px;
-        height: 42px;
-    }
-    .modal-action-btn svg {
-        width: 20px;
-        height: 20px;
-    }
-    .modal-action-btn:hover {
-        transform: translateY(-3px) scale(1.05);
-    }
-}
-@media (max-width: 1024px) {
-    
-    /* Ajustes del Título */
-    .gallery-title h1 {
-        font-size: 2.5rem;
-        letter-spacing: 2px;
-    }
-    .gallery-title p {
-        font-size: 1rem;
-    }
-    
-    /* ESTRUCTURA DE LA GALERÍA (2xN - Vertical) */
-    .gallery_wrapper {
-        width: 100%; 
-        max-width: 95vw; 
-        
-        /* 2 COLUMNAS FLEXIBLES (1fr) */
-        grid-template-columns: repeat(2, 1fr); 
-        
-        /* Ajustamos el tamaño base de la celda a una proporción vertical (aprox. 9:16) */
-        /* Si una columna mide 100px, la fila medirá ~177px de alto. */
-        --img-size: calc(100px - 0.5rem / 2); /* Valor base que define el ancho relativo */
-        grid-auto-rows: calc(var(--img-size) * 1.777); /* 16/9 ≈ 1.777 */
-        justify-items: stretch; 
-    }
-
-    /* ANULACIÓN TOTAL DEL CLIP-PATH Y FORMA VERTICAL */
-    .gallery_wrapper img {
-        /* ANULACIÓN DE ESTILOS DE ESCRITORIO */
-        clip-path: none !important; 
-        grid-column: span 1 !important; 
-        transition: filter 500ms, box-shadow 400ms !important; 
-        
-        /* PROPORCIÓN VERTICAL */
-        aspect-ratio: 9 / 16; /* Opcional, asegura la proporción de la imagen */
-        object-fit: cover; /* Asegura que la imagen cubra el espacio sin estirarse */
-        
-        /* Ajuste de dimensiones */
-        border-radius: 0.5rem;
-        width: 100%; 
-        height: 100%; 
-        max-width: none !important;
-    }
-    
-    /* ANULACIÓN DEL HOVER DEL CLIP-PATH */
-    .gallery_wrapper img:hover {
-        clip-path: none !important; 
-    }
-    
-    /* RESET DE PATRONES ANTERIORES */
     .gallery_wrapper img:nth-of-type(15n + 9),
     .gallery_wrapper img:nth-of-type(3n + 3),
     .gallery_wrapper img:nth-of-type(5n + 4) {
         grid-column: span 1 !important;
     }
-    .modal-content {
-        height: 100%;
-        max-height: 100vh;
-        width: 85%;
-        display: flex;
-        gap: 8px;
-        padding: 0 5px;
 
-        justify-content: center;
+    .gallery-title h1 {
+        font-size: 2.5rem;
+        letter-spacing: 2px;
     }
 
-    .scroll-dots {
-        bottom: 25px;
-        padding: 10px 18px;
-        gap: 11px;
-    }
-    .scroll-dot {
-        width: 11px;
-        height: 11px;
-    }
-    .modal-arrow {
-        width: 45px;
-        height: 45px;
-    }
-    .modal-arrow-prev {
-        left: -65px;
-    }
-    .modal-arrow-next {
-        right: -65px;
-    }
-    .modal-action-btn {
-        width: 48px;
-        height: 48px;
-    }
-    .modal-close {
-        font-size: 45px;
-        top: 15px;
-        right: 30px;
+    .gallery-title p {
+        font-size: 1rem;
     }
 }
 
 /* --- MÓVIL PEQUEÑO (hasta 767px) --- */
 @media (max-width: 767px) {
     
-    /* Estilos del cuerpo y fondo */
-    body {
-        background-size: cover;      
-        background-repeat: no-repeat; 
-        background-position: center; 
-        animation: none; 
-    }
-    
-    /* Título */
     .gallery-title h1 {
         font-size: 1.8rem;
         letter-spacing: 1.5px;
-        margin-bottom: 8px;
-    }
-    .gallery-title p {
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
     }
 
-    /* Galería */
+    .gallery-title p {
+        font-size: 0.9rem;
+    }
+
     .gallery_wrapper {
-        /* Hacemos las imágenes un poco más pequeñas */
-        --img-size: calc(85px - 0.5rem / 2); 
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin: 0 auto 60px;
     }
 
     .gallery_wrapper img {
-        border-radius: 0.4rem;
-        box-shadow: 0 4px 20px 0 rgba(0,0,0,0.25), 0 1px 4px 0 rgba(0,0,0,0.2);
+        border-radius: 0.375rem;
     }
-    
-    /* Resto de estilos de Mobile (scroll, modal) ... */
-    .scroll-dots {
-        bottom: 15px;
-        padding: 8px 14px;
-        gap: 9px;
-    }
-    .scroll-dot {
-        width: 9px;
-        height: 9px;
-        border: 1.5px solid transparent;
-    }
-    .scroll-dot.active {
-        transform: scale(1.15);
-    }
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border-width: 3px;
-    }
-    .spinner-text {
-        font-size: 0.95rem;
-        margin-top: 15px;
-    }
-    .modal {
-        padding-top: 10px;
-    }
+
     .modal-content {
-        width: 98%;
-        height: 100%;
         max-height: 100vh;
-        gap: 8px;
-        padding: 0 5px;
-        justify-content: center;
+        padding: 1rem;
     }
+
     #modal-image {
         max-height: 75vh;
     }
+
     .modal-close {
-        top: 5px;
-        right: 10px;
+        top: 10px;
+        right: 15px;
         font-size: 35px;
     }
+
     .modal-arrow {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
-    .modal-arrow svg {
-        width: 24px;
-        height: 24px;
-    }
+
     .modal-arrow-prev {
-        left: 5px;
-        top: 45%;
+        left: -55px;
     }
+
     .modal-arrow-next {
-        right: 5px;
-        top: 45%;
+        right: -55px;
     }
-    .modal-actions-floating {
-        gap: 10px;
-        margin-top: 8px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+
     .modal-action-btn {
-        width: 42px;
-        height: 42px;
+        width: 45px;
+        height: 45px;
     }
-    .modal-action-btn svg {
-        width: 20px;
-        height: 20px;
-    }
+
     .modal-action-btn:hover {
-        transform: translateY(-3px) scale(1.05);
+        transform: translate3d(0, -3px, 0) scale3d(1.05, 1.05, 1);
+    }
+
+    .modal-action-btn:active {
+        transform: translate3d(0, -1px, 0) scale3d(1.02, 1.02, 1);
     }
 }

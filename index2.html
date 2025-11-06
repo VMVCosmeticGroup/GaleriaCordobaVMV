@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Imágenes (Nueva Versión)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1A1A1A;
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            padding: 1rem;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 9 / 16;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 123, 255, 0.3);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #modal.active {
+            display: flex;
+        }
+        
+        #modal-content {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        #modal-image-container {
+            position: relative;
+            max-width: 90vw;
+            max-height: 80vh;
+            aspect-ratio: 9 / 16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            box-shadow: 0 12px 48px rgba(0, 123, 255, 0.4);
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #E0E0E0;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-close:hover {
+            background: #007BFF;
+            transform: rotate(90deg);
+        }
+        
+        .modal-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #E0E0E0;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-arrow:hover {
+            background: #007BFF;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .modal-arrow-prev {
+            left: 1rem;
+        }
+        
+        .modal-arrow-next {
+            right: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .modal-action-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #E0E0E0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-action-btn:hover {
+            background: #007BFF;
+            transform: scale(1.1);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes modalZoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        #modal.active #modal-content {
+            animation: modalZoomIn 0.3s ease-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+                padding: 2rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .gallery-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.25rem;
+                max-width: 1400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="w-full py-6 px-4 text-center border-b border-gray-800">
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-2" style="letter-spacing: 2px;">Viaje Salerm Cádiz</h1>
+        <p class="text-sm md:text-base text-gray-400" style="letter-spacing: 1px;">Recuerdos de un viaje inolvidable</p>
+    </header>
+
+    <!-- Gallery Grid -->
+    <div id="gallery" class="gallery-grid"></div>
+
+    <!-- Modal -->
+    <div id="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-arrow modal-arrow-prev" onclick="showPrevImage()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button class="modal-arrow modal-arrow-next" onclick="showNextImage()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        
+        <div id="modal-content">
+            <div id="modal-image-container">
+                <img id="modal-image" src="" alt="Imagen ampliada">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-action-btn" onclick="downloadImage()" title="Descargar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </button>
+                <button class="modal-action-btn" onclick="shareWhatsApp()" title="WhatsApp">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                </button>
+                <button class="modal-action-btn" onclick="shareFacebook()" title="Facebook">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                </button>
+                <button class="modal-action-btn" onclick="shareInstagram()" title="Instagram">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de Cloudinary
+        const CLOUDINARY_CLOUD_NAME = 'galerycordoba';
+        let allImages = [];
+        let currentImageIndex = 0;
+
+        // Función para construir URL de Cloudinary
+        function getCloudinaryUrlDirect(imageId, width = 400, height = 711) {
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/w_${width},h_${height},c_fill,q_auto,f_auto/${imageId}`;
+        }
+
+        // Cargar galería desde data.json
+        async function loadGallery() {
+            try {
+                const response = await fetch('./data.json');
+                const images = await response.json();
+                allImages = images;
+
+                const gallery = document.getElementById('gallery');
+                gallery.innerHTML = '';
+
+                images.forEach((image, index) => {
+                    const imageUrl = getCloudinaryUrlDirect(image.id, 400, 711);
+
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item fade-in';
+                    div.onclick = () => openModal(index);
+
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = image.alt;
+                    img.title = image.titulo;
+                    img.loading = 'lazy';
+
+                    div.appendChild(img);
+                    gallery.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error al cargar la galería:', error);
+                alert('Error al cargar la galería. Verifica tu archivo data.json y la configuración de Cloudinary');
+            }
+        }
+
+        // Abrir modal
+        function openModal(index) {
+            currentImageIndex = index;
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modal-image');
+            const image = allImages[index];
+            
+            // Mostrar primero la imagen en baja calidad (sin blur, tal cual)
+            const lowResUrl = getCloudinaryUrlDirect(image.id, 400, 711);
+            const highResUrl = getCloudinaryUrlDirect(image.id, 1200, 2133);
+            
+            modalImage.src = lowResUrl;
+            modalImage.alt = image.titulo;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Precargar y reemplazar con la imagen en alta calidad
+            const imgHigh = new window.Image();
+            imgHigh.src = highResUrl;
+            imgHigh.onload = () => {
+                modalImage.src = highResUrl;
+            };
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Imagen siguiente
+        function showNextImage() {
+            currentImageIndex = (currentImageIndex + 1) % allImages.length;
+            openModal(currentImageIndex);
+        }
+
+        // Imagen anterior
+        function showPrevImage() {
+            currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+            openModal(currentImageIndex);
+        }
+
+        // Descargar imagen
+        async function downloadImage() {
+            const image = allImages[currentImageIndex];
+            const highResUrl = getCloudinaryUrlDirect(image.id, 1200, 2133);
+            
+            try {
+                const response = await fetch(highResUrl);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = image.titulo.replace(/\s+/g, '_') + '.jpg';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(blobUrl);
+                    document.body.removeChild(a);
+                }, 100);
+            } catch (err) {
+                alert('No se pudo descargar la imagen.');
+            }
+        }
+
+        // Compartir en WhatsApp
+        function shareWhatsApp() {
+            const image = allImages[currentImageIndex];
+            const highResUrl = getCloudinaryUrlDirect(image.id, 1200, 2133);
+            const text = encodeURIComponent('¡Mira esta foto del viaje Salerm Cádiz! ' + highResUrl);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        // Compartir en Facebook
+        function shareFacebook() {
+            const image = allImages[currentImageIndex];
+            const highResUrl = getCloudinaryUrlDirect(image.id, 1200, 2133);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(highResUrl)}`, '_blank');
+        }
+
+        // Compartir en Instagram
+        function shareInstagram() {
+            window.open('https://www.instagram.com/', '_blank');
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft') showPrevImage();
+            if (e.key === 'ArrowRight') showNextImage();
+        });
+
+        // Cerrar modal al hacer clic fuera de la imagen
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+
+        // Inicializar galería
+        loadGallery();
+    </script>
+
+    <!-- Copyright Footer -->
+    <footer style="text-align: center; padding: 2rem 1rem; color: rgba(224, 224, 224, 0.5); font-size: 0.875rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+        &copy; 2025 VMV Cosmetic Group
+    </footer>
+</body>
+</html>
