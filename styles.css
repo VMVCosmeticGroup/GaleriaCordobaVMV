@@ -550,11 +550,52 @@ body {
     text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
 }
 
-/* --- Responsive Styles --- */
-
-/* --- GENERAL PARA TABLET Y MÓVIL (hasta 1024px) --- */
+/* --- TABLET Y MÓVIL (desde 1024px hacia abajo) --- */
 @media (max-width: 1024px) {
-    /* Estilos del título de galería */
+    
+    /* 1. Ajustamos la galería para el nuevo patrón (2xN) */
+    .gallery_wrapper {
+        width: 100%; 
+        max-width: 95vw; 
+        /* Usamos 2 columnas flexibles, esto garantiza que no haya overflow */
+        grid-template-columns: repeat(2, 1fr); 
+        /* Reducimos el tamaño de la fila base */
+        --img-size: calc(100px - 0.5rem / 2); 
+        grid-auto-rows: var(--img-size);
+        justify-items: center; 
+    }
+
+    /* 2. ANULACIÓN TOTAL DEL CLIP-PATH Y PATRONES */
+    .gallery_wrapper img {
+        /* ANULACIÓN DEL CLIP-PATH BASE */
+        clip-path: none !important; 
+        /* ANULACIÓN DE ANIMACIONES Y TRANSICIONES ASOCIADAS AL CLIP-PATH */
+        transition: filter 500ms, box-shadow 400ms !important; 
+        /* Todas las imágenes ocupan 1 columna (el 50% del ancho) */
+        grid-column: span 1 !important; 
+        /* Aseguramos la forma cuadrada/redondeada */
+        border-radius: 0.5rem;
+        max-width: 100%; 
+    }
+    
+    /* ANULACIÓN DEL CLIP-PATH EN ESTADO HOVER */
+    .gallery_wrapper img:hover {
+        clip-path: none !important; 
+    }
+    
+    /* RESET DE PATRONES ANTERIORES */
+    /* Reseteamos el patrón de escritorio (15n + 9) */
+    .gallery_wrapper img:nth-of-type(15n + 9) {
+        grid-column: span 1 !important;
+    }
+    
+    /* Reseteamos cualquier patrón intermedio (3n+3, 5n+4) */
+    .gallery_wrapper img:nth-of-type(3n + 3),
+    .gallery_wrapper img:nth-of-type(5n + 4) {
+        grid-column: span 1 !important;
+    }
+
+    /* 3. Estilos de Título y Modal */
     .gallery-title h1 {
         font-size: 2.5rem;
         letter-spacing: 2px;
@@ -563,37 +604,7 @@ body {
         font-size: 1rem;
     }
 
-    /* --- GALERÍA ADAPTADA PARA MÓVILES (Patrón 2-1-2-1) --- */
-    .gallery_wrapper {
-        /* Para mobile, queremos que la galería ocupe todo el ancho disponible */
-        width: 100%; 
-        max-width: 95vw; /* Limita el ancho para dejar márgenes */
-        /* Reducimos el tamaño de las imágenes para que encajen mejor */
-        --img-size: calc(80px - 0.5rem / 2); 
-        /* SOLO DOS COLUMNAS FLEXIBLES (1fr), esto previene el overflow */
-        grid-template-columns: repeat(2, 1fr); 
-        grid-auto-rows: var(--img-size);
-        /* Quitamos el justify-content, ya que 1fr ya distribuye el espacio */
-        /* margin: 0 auto; ya está en el base, se mantiene para centrar */
-    }
-
-    /* 1. RESETEAMOS el patrón de ESCRITORIO (15n + 9) */
-    .gallery_wrapper img:nth-of-type(15n + 9) {
-        grid-column: span 1; /* Ahora cada imagen en escritorio es span 1 por defecto */
-    }
-    
-    /* 2. APLICAMOS el nuevo patrón "2-1-2-1" para móviles */
-    /* Las imágenes por defecto ya ocupan "span 1" (la mitad del grid de 2 columnas) */
-    .gallery_wrapper img {
-        grid-column: span 1; /* Cada imagen ocupa una de las dos columnas */
-    }
-
-    /* Cada tercera imagen ocupa ambas columnas (span 2) y se centra */
-    .gallery_wrapper img:nth-of-type(3n + 3) {
-        grid-column: 1 / span 2; /* Comienza en la 1ª columna y ocupa 2 (toda la fila) */
-    }
-
-    /* --- El resto de tus estilos de Tablet --- */
+    /* Resto de estilos de Tablet (modal, dots, etc.) */
     .scroll-dots {
         bottom: 25px;
         padding: 10px 18px;
@@ -608,10 +619,10 @@ body {
         height: 45px;
     }
     .modal-arrow-prev {
-        left: -65px; /* Estas posiciones pueden necesitar ajuste si el modal es más estrecho */
+        left: -65px;
     }
     .modal-arrow-next {
-        right: -65px; /* Estas posiciones pueden necesitar ajuste si el modal es más estrecho */
+        right: -65px;
     }
     .modal-action-btn {
         width: 48px;
@@ -625,20 +636,18 @@ body {
 }
 
 
-/* --- MÓVIL (hasta 767px) --- */
+/* --- MÓVIL PEQUEÑO (hasta 767px) --- */
 @media (max-width: 767px) {
+    
+    /* Estilos del cuerpo y fondo */
     body {
-        background-size: cover;      /* Asegura que cubra todo el fondo */
-        background-repeat: no-repeat; /* Evita que se repita */
-        background-position: center; /* Centra la imagen de fondo */
-        animation: none; /* Detenemos la animación en móvil */
+        background-size: cover;      
+        background-repeat: no-repeat; 
+        background-position: center; 
+        animation: none; 
     }
-
-    .gallery-title {
-        min-height: 80vh;
-        padding: 0 15px;
-        margin: 20px auto 20px;
-    }
+    
+    /* Título */
     .gallery-title h1 {
         font-size: 1.8rem;
         letter-spacing: 1.5px;
@@ -649,17 +658,17 @@ body {
         letter-spacing: 0.5px;
     }
 
+    /* Galería */
     .gallery_wrapper {
-        --img-size: calc(70px - 0.5rem / 2); /* Imágenes un poco más pequeñas para móviles */
-        /* Mantiene el patrón 2-1-2-1 heredado de 1024px */
+        --img-size: calc(85px - 0.5rem / 2); 
     }
 
     .gallery_wrapper img {
         border-radius: 0.4rem;
         box-shadow: 0 4px 20px 0 rgba(0,0,0,0.25), 0 1px 4px 0 rgba(0,0,0,0.2);
     }
-
-    /* --- El resto de tus estilos de Mobile (scroll, modal) --- */
+    
+    /* Resto de estilos de Mobile (scroll, modal) ... */
     .scroll-dots {
         bottom: 15px;
         padding: 8px 14px;
@@ -687,9 +696,11 @@ body {
     }
     .modal-content {
         width: 98%;
-        max-height: 95vh;
+        height: 100%;
+        max-height: 100vh;
         gap: 8px;
         padding: 0 5px;
+        justify-content: center;
     }
     #modal-image {
         max-height: 75vh;
@@ -733,42 +744,208 @@ body {
         transform: translateY(-3px) scale(1.05);
     }
 }
-
-/* --- MÓVIL PEQUEÑO (hasta 480px) --- */
-/* Mantendremos el patrón 2-1-2-1 ya que es el que se desea y es el más adecuado */
-@media (max-width: 480px) {
+@media (max-width: 1024px) {
+    
+    /* Ajustes del Título */
     .gallery-title h1 {
-        font-size: 1.5rem;
-        letter-spacing: 1px;
+        font-size: 2.5rem;
+        letter-spacing: 2px;
     }
     .gallery-title p {
-        font-size: 0.8rem;
+        font-size: 1rem;
     }
-
+    
+    /* ESTRUCTURA DE LA GALERÍA (2xN - Vertical) */
     .gallery_wrapper {
-        --img-size: calc(60px - 0.4rem / 2); /* Imágenes aún más pequeñas para móviles muy pequeños */
-        /* grid-template-columns y el patrón se heredan de la media query de 1024px */
+        width: 100%; 
+        max-width: 95vw; 
+        
+        /* 2 COLUMNAS FLEXIBLES (1fr) */
+        grid-template-columns: repeat(2, 1fr); 
+        
+        /* Ajustamos el tamaño base de la celda a una proporción vertical (aprox. 9:16) */
+        /* Si una columna mide 100px, la fila medirá ~177px de alto. */
+        --img-size: calc(100px - 0.5rem / 2); /* Valor base que define el ancho relativo */
+        grid-auto-rows: calc(var(--img-size) * 1.777); /* 16/9 ≈ 1.777 */
+        justify-items: stretch; 
     }
 
-    /* --- El resto de tus estilos de Mobile pequeño --- */
-    .scroll-dots {
-        bottom: 12px;
-        padding: 6px 12px;
+    /* ANULACIÓN TOTAL DEL CLIP-PATH Y FORMA VERTICAL */
+    .gallery_wrapper img {
+        /* ANULACIÓN DE ESTILOS DE ESCRITORIO */
+        clip-path: none !important; 
+        grid-column: span 1 !important; 
+        transition: filter 500ms, box-shadow 400ms !important; 
+        
+        /* PROPORCIÓN VERTICAL */
+        aspect-ratio: 9 / 16; /* Opcional, asegura la proporción de la imagen */
+        object-fit: cover; /* Asegura que la imagen cubra el espacio sin estirarse */
+        
+        /* Ajuste de dimensiones */
+        border-radius: 0.5rem;
+        width: 100%; 
+        height: 100%; 
+        max-width: none !important;
+    }
+    
+    /* ANULACIÓN DEL HOVER DEL CLIP-PATH */
+    .gallery_wrapper img:hover {
+        clip-path: none !important; 
+    }
+    
+    /* RESET DE PATRONES ANTERIORES */
+    .gallery_wrapper img:nth-of-type(15n + 9),
+    .gallery_wrapper img:nth-of-type(3n + 3),
+    .gallery_wrapper img:nth-of-type(5n + 4) {
+        grid-column: span 1 !important;
+    }
+    .modal-content {
+        height: 100%;
+        max-height: 100vh;
+        width: 85%;
+        display: flex;
         gap: 8px;
+        padding: 0 5px;
+
+        justify-content: center;
+    }
+
+    .scroll-dots {
+        bottom: 25px;
+        padding: 10px 18px;
+        gap: 11px;
     }
     .scroll-dot {
-        width: 8px;
-        height: 8px;
-    }
-    .modal-close {
-        font-size: 30px;
+        width: 11px;
+        height: 11px;
     }
     .modal-arrow {
-        width: 35px;
-        height: 35px;
+        width: 45px;
+        height: 45px;
+    }
+    .modal-arrow-prev {
+        left: -65px;
+    }
+    .modal-arrow-next {
+        right: -65px;
     }
     .modal-action-btn {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
+    }
+    .modal-close {
+        font-size: 45px;
+        top: 15px;
+        right: 30px;
+    }
+}
+
+/* --- MÓVIL PEQUEÑO (hasta 767px) --- */
+@media (max-width: 767px) {
+    
+    /* Estilos del cuerpo y fondo */
+    body {
+        background-size: cover;      
+        background-repeat: no-repeat; 
+        background-position: center; 
+        animation: none; 
+    }
+    
+    /* Título */
+    .gallery-title h1 {
+        font-size: 1.8rem;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+    }
+    .gallery-title p {
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* Galería */
+    .gallery_wrapper {
+        /* Hacemos las imágenes un poco más pequeñas */
+        --img-size: calc(85px - 0.5rem / 2); 
+    }
+
+    .gallery_wrapper img {
+        border-radius: 0.4rem;
+        box-shadow: 0 4px 20px 0 rgba(0,0,0,0.25), 0 1px 4px 0 rgba(0,0,0,0.2);
+    }
+    
+    /* Resto de estilos de Mobile (scroll, modal) ... */
+    .scroll-dots {
+        bottom: 15px;
+        padding: 8px 14px;
+        gap: 9px;
+    }
+    .scroll-dot {
+        width: 9px;
+        height: 9px;
+        border: 1.5px solid transparent;
+    }
+    .scroll-dot.active {
+        transform: scale(1.15);
+    }
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border-width: 3px;
+    }
+    .spinner-text {
+        font-size: 0.95rem;
+        margin-top: 15px;
+    }
+    .modal {
+        padding-top: 10px;
+    }
+    .modal-content {
+        width: 98%;
+        height: 100%;
+        max-height: 100vh;
+        gap: 8px;
+        padding: 0 5px;
+        justify-content: center;
+    }
+    #modal-image {
+        max-height: 75vh;
+    }
+    .modal-close {
+        top: 5px;
+        right: 10px;
+        font-size: 35px;
+    }
+    .modal-arrow {
+        width: 38px;
+        height: 38px;
+    }
+    .modal-arrow svg {
+        width: 24px;
+        height: 24px;
+    }
+    .modal-arrow-prev {
+        left: 5px;
+        top: 45%;
+    }
+    .modal-arrow-next {
+        right: 5px;
+        top: 45%;
+    }
+    .modal-actions-floating {
+        gap: 10px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .modal-action-btn {
+        width: 42px;
+        height: 42px;
+    }
+    .modal-action-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    .modal-action-btn:hover {
+        transform: translateY(-3px) scale(1.05);
     }
 }
